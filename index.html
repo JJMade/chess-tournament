@@ -1,0 +1,4727 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Swiss Chess Tournament Manager</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: #f3f5f7;
+    color: #17202a;
+    font-family:
+        "Noto Sans KR",
+        Arial,
+        sans-serif;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app {
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 30px 18px 70px;
+}
+
+/* =====================================================
+   공통
+===================================================== */
+
+.card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.06);
+}
+
+h1,
+h2,
+h3 {
+    margin-top: 0;
+}
+
+.btn {
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 15px;
+    font-weight: 800;
+    transition: 0.15s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: #fff;
+}
+
+.btn-green {
+    background: #16a34a;
+    color: #fff;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: #fff;
+}
+
+.btn-gray {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.btn-dark {
+    background: #111827;
+    color: #fff;
+}
+
+input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d7dce2;
+    border-radius: 10px;
+    outline: none;
+    background: #fff;
+}
+
+input:focus {
+    border-color: #2563eb;
+}
+
+/* =====================================================
+   시작 화면
+===================================================== */
+
+#setup {
+    max-width: 900px;
+    margin: 40px auto;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.title h1 {
+    font-size: 42px;
+    margin-bottom: 8px;
+}
+
+.title p {
+    margin: 0;
+    color: #6b7280;
+}
+
+.input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.input-row input {
+    flex: 1;
+}
+
+.player-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.player-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 11px 13px;
+
+    background: #f7f8fa;
+    border-radius: 11px;
+}
+
+.player-left {
+    display: flex;
+    align-items: center;
+}
+
+.player-number {
+    width: 30px;
+    height: 30px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-right: 9px;
+
+    border-radius: 50%;
+    background: #e5e7eb;
+
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.option {
+    background: #f7f8fa;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.option label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: 800;
+}
+
+.notice {
+    margin-top: 16px;
+    padding: 15px;
+
+    background: #eff6ff;
+    color: #1d4ed8;
+
+    border-radius: 12px;
+
+    line-height: 1.7;
+    font-size: 13px;
+}
+
+.start-button {
+    width: 100%;
+    margin-top: 18px;
+    padding: 15px;
+
+    font-size: 17px;
+}
+
+/* =====================================================
+   대회 헤더
+===================================================== */
+
+#tournament {
+    display: none;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: 900;
+}
+
+.logo span {
+    color: #2563eb;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* =====================================================
+   통계
+===================================================== */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+
+    margin-bottom: 18px;
+}
+
+.stat {
+    background: #fff;
+    border-radius: 15px;
+    padding: 17px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.stat-label {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.stat-value {
+    margin-top: 5px;
+
+    font-size: 25px;
+    font-weight: 900;
+}
+
+/* =====================================================
+   라운드
+===================================================== */
+
+.round-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 15px;
+}
+
+.round-header h2 {
+    margin: 0;
+}
+
+.pairing {
+    overflow: hidden;
+
+    margin-bottom: 12px;
+
+    border: 1px solid #e2e6eb;
+    border-radius: 13px;
+}
+
+.pairing-top {
+    display: flex;
+    justify-content: space-between;
+
+    padding: 9px 13px;
+
+    background: #f8fafc;
+
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.match {
+    display: grid;
+    grid-template-columns: 1fr 90px 1fr;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 14px;
+}
+
+.player {
+    padding: 13px;
+
+    background: #f7f8fa;
+
+    border-radius: 10px;
+}
+
+.player.white {
+    border-left: 5px solid #d1d5db;
+}
+
+.player.black {
+    border-left: 5px solid #111827;
+}
+
+.player-name {
+    font-weight: 900;
+    font-size: 16px;
+}
+
+.player-info {
+    margin-top: 5px;
+
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.color-badge {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 28px;
+    height: 24px;
+
+    margin-right: 5px;
+
+    border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.color-white {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.color-black {
+    background: #111827;
+    color: #fff;
+}
+
+.vs {
+    text-align: center;
+
+    color: #9ca3af;
+    font-weight: 900;
+}
+
+.result-area {
+    margin-top: 10px;
+}
+
+.result-label {
+    margin-bottom: 7px;
+
+    color: #6b7280;
+
+    font-size: 11px;
+}
+
+.result-buttons {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.result-button {
+    border: 1px solid #d7dce2;
+    background: #fff;
+
+    border-radius: 7px;
+
+    padding: 7px 9px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.result-button:hover {
+    background: #f1f5f9;
+}
+
+.result-button.selected {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+}
+
+.result-button.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.bye {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+
+    padding: 14px;
+
+    background: #fff7ed;
+
+    border: 1px solid #fed7aa;
+
+    border-radius: 11px;
+}
+
+.bye-left {
+    font-weight: 800;
+}
+
+.bye-right {
+    color: #9a3412;
+    font-size: 13px;
+}
+
+/* =====================================================
+   순위표
+===================================================== */
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+
+    min-width: 760px;
+}
+
+th,
+td {
+    padding: 11px 8px;
+
+    border-bottom: 1px solid #edf0f3;
+
+    text-align: center;
+}
+
+th {
+    background: #f8fafc;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+td.name {
+    text-align: left;
+    font-weight: 800;
+}
+
+.rank-number {
+    font-weight: 900;
+}
+
+.score {
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.tie {
+    display: inline-block;
+
+    margin-left: 5px;
+
+    color: #b45309;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.rule {
+    margin-top: 12px;
+
+    color: #6b7280;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+}
+
+/* =====================================================
+   라운드 기록
+===================================================== */
+
+.history {
+    overflow: hidden;
+
+    margin-bottom: 9px;
+
+    border: 1px solid #e1e5ea;
+
+    border-radius: 11px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 13px 14px;
+
+    background: #f8fafc;
+
+    font-weight: 900;
+
+    cursor: pointer;
+}
+
+.history-body {
+    display: none;
+
+    padding: 10px 14px;
+}
+
+.history-body.open {
+    display: block;
+}
+
+.history-match {
+    display: flex;
+    justify-content: space-between;
+
+    padding: 9px 0;
+
+    border-bottom: 1px solid #f0f1f3;
+
+    font-size: 14px;
+}
+
+.history-match:last-child {
+    border-bottom: 0;
+}
+
+.history-result {
+    font-weight: 900;
+}
+
+.history-bye {
+    padding: 8px 0;
+
+    color: #9a3412;
+}
+
+/* =====================================================
+   종료 메시지
+===================================================== */
+
+.tournament-finished {
+    padding: 18px;
+
+    margin-bottom: 18px;
+
+    background: #ecfdf5;
+
+    border: 1px solid #bbf7d0;
+
+    color: #166534;
+
+    border-radius: 13px;
+
+    font-weight: 800;
+}
+
+/* =====================================================
+   비밀번호 잠금 화면
+===================================================== */
+
+#passwordScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #f3f5f7;
+}
+
+.password-box {
+    width: min(420px, 100%);
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.10);
+}
+
+.password-logo {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.password-box h2 { margin-bottom: 8px; }
+
+.password-box p {
+    margin: 0 0 20px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.password-box input {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.password-button { width: 100%; }
+
+.password-error {
+    min-height: 20px;
+    margin-top: 9px;
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* =====================================================
+   최종점수 보정 컨트롤
+===================================================== */
+
+.final-score-control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.score-adjust {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #d8dce3;
+    border-radius: 8px;
+    background: #fff;
+    color: #374151;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.score-adjust:hover {
+    background: #f3f4f6;
+}
+
+.final-score-value {
+    min-width: 32px;
+    display: inline-block;
+    text-align: center;
+}
+
+.score-adjustment {
+    display: block;
+    margin-top: 3px;
+    font-size: 10px;
+    color: #6b7280;
+}
+
+
+/* =====================================================
+   모바일
+===================================================== */
+
+@media (max-width: 700px) {
+
+    .app {
+        padding: 20px 12px 50px;
+    }
+
+    .title h1 {
+        font-size: 31px;
+    }
+
+    .options {
+        grid-template-columns: 1fr;
+    }
+
+    .stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    header,
+    .round-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .input-row {
+        flex-direction: column;
+    }
+
+    .match {
+        grid-template-columns: 1fr;
+    }
+
+    .vs {
+        display: none;
+    }
+
+    .bye {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
+</style>
+
+
+
+
+<style>
+.records-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.records-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    backdrop-filter: blur(3px);
+}
+.records-modal-box {
+    position: relative;
+    z-index: 1;
+    width: min(720px, 100%);
+    max-height: 82vh;
+    overflow: hidden;
+    background: #fff;
+    border-radius: 22px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.22);
+}
+.records-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 22px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.records-title {
+    font-size: 20px;
+    font-weight: 800;
+}
+.records-subtitle {
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 13px;
+}
+.records-close {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: #f3f4f6;
+    cursor: pointer;
+    font-size: 16px;
+}
+.saved-records-list {
+    padding: 16px;
+    overflow-y: auto;
+    max-height: 62vh;
+}
+.saved-record {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 15px 16px;
+    margin-bottom: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #fafafa;
+}
+.saved-record-info {
+    min-width: 0;
+}
+.saved-record-name {
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+.saved-record-time {
+    color: #6b7280;
+    font-size: 12px;
+}
+.saved-record-meta {
+    color: #6b7280;
+    font-size: 12px;
+    margin-top: 3px;
+}
+.saved-record-actions {
+    display: flex;
+    gap: 7px;
+    flex-shrink: 0;
+}
+.saved-record-actions button {
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.saved-record-load {
+    background: #111827;
+    color: #fff;
+}
+.saved-record-download {
+    background: #e5e7eb;
+    color: #111827;
+}
+.saved-record-empty {
+    text-align: center;
+    padding: 45px 15px;
+    color: #6b7280;
+}
+@media (max-width: 600px) {
+    .saved-record {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .saved-record-actions {
+        width: 100%;
+    }
+}
+</style>
+
+
+<style>
+.saved-record-delete {
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+}
+</style>
+
+</head>
+
+
+<body>
+
+<!-- =====================================================
+     시작 비밀번호
+===================================================== -->
+<div id="passwordScreen">
+    <div class="password-box">
+        <div class="password-logo">♟</div>
+        <h2>DRES Chess / v. 2.02 </h2>
+        <p>대회 관리자 페이지에 들어가려면 비밀번호를 입력하세요.</p>
+
+        <input
+            id="passwordInput"
+            type="password"
+            placeholder="비밀번호 입력"
+            autocomplete="off"
+        >
+
+        <button
+            class="btn btn-primary password-button"
+            onclick="checkPassword()"
+        >
+            🔓 입장하기
+        </button>
+
+        <div id="passwordError" class="password-error"></div>
+    </div>
+</div>
+
+<div class="app">
+
+<!-- =====================================================
+     대회 설정
+===================================================== -->
+
+<section id="setup">
+
+    <div class="title">
+
+        <h1>♟ Chess Tournament</h1>
+
+        <p>
+            Swiss System Tournament Manager / v. 2.02
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>👥 참가자 등록</h2>
+
+        <div class="input-row">
+
+            <input
+                id="playerName"
+                type="text"
+                placeholder="참가자 이름 입력"
+                autocomplete="off"
+            >
+
+            <button
+                class="btn btn-primary"
+                onclick="addPlayer()"
+            >
+                참가자 추가
+            </button>
+
+        </div>
+
+
+        <div
+            id="playerList"
+            class="player-list"
+        ></div>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>⚙️ 대회 설정</h2>
+
+        <div class="option" style="margin-bottom:12px;">
+            <label>대회 이름</label>
+            <input
+                id="tournamentName"
+                type="text"
+                placeholder="예: 2026 부산 체스 그랑프리"
+                autocomplete="off"
+            >
+        </div>
+
+
+
+        <div class="options">
+
+            <div class="option">
+
+                <label>
+                    라운드 수
+                </label>
+
+                <input
+                    id="roundCount"
+                    type="number"
+                    min="1"
+                    max="30"
+                    value="4"
+                >
+
+            </div>
+
+
+            <div class="option">
+
+                <label>
+                    승리 점수
+                </label>
+
+                <input
+                    id="winPoint"
+                    type="number"
+                    step="0.5"
+                    value="1"
+                >
+
+            </div>
+
+
+            <div class="option">
+
+                <label>
+                    무승부 점수
+                </label>
+
+                <input
+                    id="drawPoint"
+                    type="number"
+                    step="0.5"
+                    value="0.5"
+                >
+
+            </div>
+
+
+            <div class="option">
+
+                <label>
+                    패배 점수
+                </label>
+
+                <input
+                    id="lossPoint"
+                    type="number"
+                    step="0.5"
+                    value="0"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="notice">
+
+            <b>PTS</b>
+            = 현재까지 얻은 승점
+
+            <br>
+
+            <b>PS</b>
+            = 각 라운드 종료 시점의 PTS를 모두 더한 값
+
+            <br><br>
+
+            예:
+            <b>1R 승 → 2R 패 → 3R 승 → 4R 무</b>
+
+            <br>
+
+            PTS:
+            <b>1 → 1 → 2 → 2.5</b>
+
+            <br>
+
+            PS:
+            <b>1 + 1 + 2 + 2.5 = 6.5</b>
+
+            <br><br>
+
+            색상은 이전 백/흑 횟수를 고려하지 않고
+            <b>매칭된 두 선수 사이에서 완전 랜덤</b>으로 결정됩니다.
+
+        </div>
+
+
+        <button
+            class="btn btn-primary start-button"
+            onclick="startTournament()"
+        >
+            🏆 대회 시작
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     대회 화면
+===================================================== -->
+
+
+<!-- 저장 기록 보기 -->
+<div id="savedRecordsModal" class="records-modal" style="display:none;">
+    <div class="records-modal-backdrop" onclick="closeSavedRecords()"></div>
+    <div class="records-modal-box">
+        <div class="records-modal-header">
+            <div>
+                <div class="records-title">📚 저장된 대회 기록</div>
+                <div class="records-subtitle">저장 버튼을 누른 시간별로 기록을 확인할 수 있습니다.</div>
+            </div>
+            <button class="records-close" type="button" onclick="closeSavedRecords()">✕</button>
+        </div>
+        <div id="savedRecordsList" class="saved-records-list"></div>
+    </div>
+</div>
+
+<section id="tournament">
+
+<header>
+
+    <div class="logo">
+        ♟ <span>CHESS</span> TOURNAMENT
+    </div>
+
+
+    <div class="header-buttons">
+
+        <button
+            class="btn btn-gray"
+            onclick="saveTournament(true)"
+        >
+            💾 저장
+        </button>
+<button id="exportImageBtn" class="btn btn-gray" type="button" onclick="exportStandingsImage()">🖼️ PNG 저장</button>
+        <button class="btn btn-gray" type="button" onclick="showSavedRecords()">📚 기록 보기</button>
+        <span id="saveStatus" style="font-size:12px;color:#6b7280;align-self:center;">
+            저장 안 됨
+        </span>
+
+
+        <button
+            class="btn btn-danger"
+            onclick="newTournament()"
+        >
+            새 대회
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- 통계 -->
+
+<div class="stats">
+
+    <div class="stat">
+
+        <div class="stat-label">
+            현재 라운드
+        </div>
+
+        <div
+            id="currentRound"
+            class="stat-value"
+        >
+        </div>
+
+    </div>
+
+
+    <div class="stat">
+
+        <div class="stat-label">
+            참가자
+        </div>
+
+        <div
+            id="playerCount"
+            class="stat-value"
+        >
+        </div>
+
+    </div>
+
+
+    <div class="stat">
+
+        <div class="stat-label">
+            완료된 경기
+        </div>
+
+        <div
+            id="finishedGames"
+            class="stat-value"
+        >
+        </div>
+
+    </div>
+
+
+    <div class="stat">
+
+        <div class="stat-label">
+            남은 경기
+        </div>
+
+        <div
+            id="remainingGames"
+            class="stat-value"
+        >
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- 현재 라운드 -->
+
+<div class="card">
+
+    <div class="round-header">
+
+        <div>
+            <h2 id="roundTitle">
+            </h2>
+            <div id="tournamentNameDisplay" style="font-size:13px;color:#6b7280;font-weight:700;"></div>
+        </div>
+
+
+        <button
+            id="nextRoundButton"
+            class="btn btn-green"
+            onclick="nextRound()"
+        >
+            다음 라운드 →
+        </button>
+
+    </div>
+
+
+    <div id="pairings"></div>
+
+</div>
+
+
+<!-- 순위 -->
+
+<div class="card">
+
+    <h2>
+        🏆 현재 순위
+    </h2>
+
+
+    <div class="table-wrap">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>No.</th>
+
+                    <th>선수</th>
+
+                    <th>PTS</th>
+
+                    <th>최종점수</th>
+
+                    <th>PS</th>
+
+                    <th>BH</th>
+
+                    <th>BH-1</th>
+
+                    <th>승</th>
+
+                    <th>무</th>
+
+                    <th>패</th>
+
+                    <th>BYE</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="standings">
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <div class="rule">
+
+        <b>순위 결정 방식:</b>
+
+        PTS
+        →
+        동점자 2명에 한하여 승자승
+        →
+        PS (누계승점)
+        →
+        북홀츠 (BH)
+        →
+        북홀츠 1셋 (BH-1)
+        →
+        여기부터는 동점 표시
+
+    </div>
+
+</div>
+
+
+<!-- 라운드 기록 -->
+
+<div class="card">
+
+    <h2>
+        📋 라운드 기록
+    </h2>
+
+
+    <div id="history"></div>
+
+</div>
+
+</section>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   시작 비밀번호
+===================================================== */
+
+const ACCESS_PASSWORD = "DRES_Chess";
+
+function checkPassword() {
+    const input = $("passwordInput");
+    const error = $("passwordError");
+
+    if (input.value === ACCESS_PASSWORD) {
+        $("passwordScreen").style.display = "none";
+        error.textContent = "";
+        initializeApp();
+        return;
+    }
+
+    error.textContent = "비밀번호가 올바르지 않습니다.";
+    input.value = "";
+    input.focus();
+}
+
+function initializeApp() {
+    renderSetupPlayers();
+    loadTournament();
+}
+
+/* =====================================================
+   전역 변수
+===================================================== */
+
+let setupPlayers = [];
+
+let tournament = null;
+
+
+/* =====================================================
+   기본 유틸
+===================================================== */
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function uid() {
+
+    return (
+        Math.random()
+            .toString(36)
+            .substring(2, 10)
+        +
+        Date.now()
+            .toString(36)
+    );
+
+}
+
+
+function normalizePlayerNumbers() {
+    if (!tournament || !Array.isArray(tournament.players)) return;
+    [...tournament.players].sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ko")).forEach((p,i)=>p.no=i+1);
+}
+
+function getPlayer(id) {
+
+    return tournament.players.find(
+        player => player.id === id
+    );
+
+}
+
+
+function shuffle(array) {
+
+    const result = [...array];
+
+    for (
+        let i = result.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
+
+        [
+            result[i],
+            result[j]
+        ] =
+        [
+            result[j],
+            result[i]
+        ];
+
+    }
+
+    return result;
+
+}
+
+
+function escapeHTML(text) {
+
+    return String(text)
+        .replace(/[&<>"']/g, function(char) {
+
+            const map = {
+
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+
+            };
+
+            return map[char];
+
+        });
+
+}
+
+
+/* =====================================================
+   참가자 관리
+===================================================== */
+
+function renderSetupPlayers() {
+
+    const list =
+        $("playerList");
+
+
+    if (setupPlayers.length === 0) {
+
+        list.innerHTML =
+            `
+            <div class="empty">
+                참가자를 추가하세요.
+            </div>
+            `;
+
+        return;
+
+    }
+
+
+    const sortedSetupPlayers = [...setupPlayers].sort((a, b) =>
+        a.name.localeCompare(b.name, "ko")
+    );
+
+    list.innerHTML =
+        sortedSetupPlayers
+            .map(
+                (player, index) => {
+
+                    return `
+
+                    <div class="player-item">
+
+                        <div class="player-left">
+
+                            <span class="player-number">
+                                ${index + 1}
+                            </span>
+
+                            <strong>
+                                ${escapeHTML(player.name)}
+                            </strong>
+
+                        </div>
+
+
+                        <button
+                            class="btn btn-danger"
+                            style="padding:7px 10px"
+                            onclick="
+                                removePlayer('${player.id}')
+                            "
+                        >
+                            삭제
+                        </button>
+
+                    </div>
+
+                    `;
+
+                }
+            )
+            .join("");
+
+}
+
+
+function addPlayer() {
+
+    const input =
+        $("playerName");
+
+
+    const name =
+        input.value.trim();
+
+
+    if (!name) {
+
+        alert(
+            "참가자 이름을 입력하세요."
+        );
+
+        input.focus();
+
+        return;
+
+    }
+
+
+    const exists =
+        setupPlayers.some(
+            player =>
+                player.name.toLowerCase()
+                ===
+                name.toLowerCase()
+        );
+
+
+    if (exists) {
+
+        alert(
+            "이미 등록된 이름입니다."
+        );
+
+        input.focus();
+
+        return;
+
+    }
+
+
+    setupPlayers.push({
+
+        id: uid(),
+
+        name
+
+    });
+
+
+    input.value = "";
+
+    input.focus();
+
+
+    renderSetupPlayers();
+
+}
+
+
+function removePlayer(id) {
+
+    setupPlayers =
+        setupPlayers.filter(
+            player =>
+                player.id !== id
+        );
+
+
+    renderSetupPlayers();
+
+}
+
+
+$("playerName").addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+
+            addPlayer();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   대회 시작
+===================================================== */
+
+function startTournament() {
+
+    if (setupPlayers.length < 2) {
+
+        alert(
+            "최소 2명의 참가자가 필요합니다."
+        );
+
+        return;
+
+    }
+
+
+    const totalRounds =
+        Math.max(
+            1,
+            parseInt(
+                $("roundCount").value,
+                10
+            ) || 1
+        );
+
+
+    const win =
+        parseFloat(
+            $("winPoint").value
+        );
+
+    const draw =
+        parseFloat(
+            $("drawPoint").value
+        );
+
+    const loss =
+        parseFloat(
+            $("lossPoint").value
+        );
+
+    const tournamentName =
+        ($("tournamentName")?.value || "").trim() ||
+        `체스 대회 ${new Date().toLocaleDateString("ko-KR")}`;
+
+
+
+    tournament = {
+
+        name: tournamentName,
+
+        totalRounds,
+
+        currentRound: 1,
+
+        points: {
+
+            win:
+                Number.isFinite(win)
+                    ? win
+                    : 1,
+
+            draw:
+                Number.isFinite(draw)
+                    ? draw
+                    : 0.5,
+
+            loss:
+                Number.isFinite(loss)
+                    ? loss
+                    : 0
+
+        },
+
+        players:
+            [...setupPlayers]
+                .sort((a, b) => a.name.localeCompare(b.name, "ko"))
+                .map(
+                (player, index) => ({
+
+                    id: player.id,
+
+                    name: player.name,
+
+                    no: index + 1,
+
+                    pts: 0,
+
+                    /* 최종점수 수동 보정값 (+/-) */
+                    adjustment: 0,
+
+                    ps: 0,
+
+                    wins: 0,
+
+                    draws: 0,
+
+                    losses: 0,
+
+                    games: 0,
+
+                    byes: 0,
+
+                    hadBye: false,
+
+                    opponents: [],
+
+                    results: {},
+
+                    colorHistory: []
+
+                })
+            ),
+
+        rounds: [],
+
+        currentPairings: [],
+
+        started: true,
+
+        finished: false
+
+    };
+
+
+    createRound(1);
+
+    showTournament();
+
+}
+
+
+/* =====================================================
+   1R 랜덤 대진
+===================================================== */
+
+function createFirstRound() {
+
+    // No.는 참가자 이름 가나다순으로 고정
+    const players = [...tournament.players].sort((a, b) =>
+        a.name.localeCompare(b.name, "ko")
+    );
+
+    const pairings = [];
+    const n = players.length;
+    const half = Math.floor(n / 2);
+
+    /*
+        10명 예시:
+        1-6
+        2-7
+        3-8
+        4-9
+        5-10
+
+        즉, 가나다순 No. 1~5와 6~10을 서로 교차 매칭.
+    */
+    for (let i = 0; i < half; i++) {
+
+        const a = players[i];
+        const b = players[i + half];
+
+        
+
+        pairings.push({
+            id: uid(),
+            whiteId: a.id,
+            blackId: b.id,
+            result: null,
+            bye: false
+        });
+    }
+
+    // 홀수 명이면 마지막 번호를 BYE 처리
+    if (n % 2 === 1) {
+
+        const byePlayer = players[n - 1];
+
+        pairings.push({
+            id: uid(),
+            bye: true,
+            playerId: byePlayer.id,
+            result: "BYE"
+        });
+    }
+
+    return pairings;
+}
+
+/* =====================================================
+   색상
+===================================================== */
+
+/*
+    ★ 중요 ★
+
+    색상은 이전 기록을 전혀 고려하지 않는다.
+
+    이미 대진된 두 선수 A / B 사이에서
+    50% 확률로 A가 백
+    50% 확률로 B가 백
+*/
+
+function randomColors(a, b) {
+
+    if (Math.random() < 0.5) {
+
+        return {
+
+            white: a,
+
+            black: b
+
+        };
+
+    }
+
+
+    return {
+
+        white: b,
+
+        black: a
+
+    };
+
+}
+
+
+/* =====================================================
+   스위스 대진
+===================================================== */
+
+/*
+    핵심:
+
+    1. 현재 PTS 높은 순
+    2. 같은 PTS 그룹끼리 최대한 매칭
+    3. 이미 만난 상대는 피함
+    4. 불가피하면 다른 점수 그룹과 매칭
+    5. 색상은 대진 이후 완전 랜덤
+*/
+
+function createSwissRound() {
+
+    let players =
+        [...tournament.players];
+
+
+    /*
+        PTS 높은 순
+        같은 PTS면 랜덤
+    */
+
+    players.sort(
+        (a, b) => {
+
+            if (b.pts !== a.pts) {
+
+                return b.pts - a.pts;
+
+            }
+
+            return Math.random() - 0.5;
+
+        }
+    );
+
+
+    let byePlayer = null;
+
+
+    /*
+        홀수 참가자
+
+        가능한 한:
+
+        - 아직 BYE가 없는 사람
+        - 점수가 낮은 사람
+
+        순으로 BYE
+    */
+
+    if (players.length % 2 === 1) {
+
+        const candidates =
+            [...players]
+                .sort(
+                    (a, b) => {
+
+                        if (
+                            a.hadBye
+                            !==
+                            b.hadBye
+                        ) {
+
+                            return a.hadBye
+                                ? 1
+                                : -1;
+
+                        }
+
+
+                        if (
+                            a.pts
+                            !==
+                            b.pts
+                        ) {
+
+                            return a.pts
+                                -
+                                b.pts;
+
+                        }
+
+
+                        return Math.random() - 0.5;
+
+                    }
+                );
+
+
+        byePlayer =
+            candidates[0];
+
+
+        players =
+            players.filter(
+                player =>
+                    player.id
+                    !==
+                    byePlayer.id
+            );
+
+    }
+
+
+    const pairs =
+        makeSwissPairs(
+            players
+        );
+
+
+    const pairings =
+        pairs.map(
+            ([a, b]) => {
+
+                const colors =
+                    randomColors(a, b);
+
+
+                return {
+
+                    id: uid(),
+
+                    whiteId:
+                        colors.white.id,
+
+                    blackId:
+                        colors.black.id,
+
+                    result: null,
+
+                    bye: false
+
+                };
+
+            }
+        );
+
+
+    if (byePlayer) {
+
+        pairings.push({
+
+            id: uid(),
+
+            bye: true,
+
+            playerId:
+                byePlayer.id,
+
+            result: "BYE"
+
+        });
+
+    }
+
+
+    return pairings;
+
+}
+
+
+/* =====================================================
+   스위스 페어링 알고리즘
+===================================================== */
+
+function makeSwissPairs(players) {
+
+    /*
+        백트래킹 방식으로
+        재대결을 최대한 피한다.
+    */
+
+
+    const sorted =
+        [...players]
+            .sort(
+                (a, b) => {
+
+                    if (b.pts !== a.pts) {
+
+                        return b.pts - a.pts;
+
+                    }
+
+                    return Math.random() - 0.5;
+
+                }
+            );
+
+
+    const solution =
+        findPairing(
+            sorted
+        );
+
+
+    if (solution) {
+
+        return solution;
+
+    }
+
+
+    /*
+        완전한 페어링이 어려우면
+        단순 순서대로 연결
+    */
+
+    const fallback = [];
+
+
+    for (
+        let i = 0;
+        i < sorted.length;
+        i += 2
+    ) {
+
+        fallback.push(
+            [
+                sorted[i],
+                sorted[i + 1]
+            ]
+        );
+
+    }
+
+
+    return fallback;
+
+}
+
+
+/*
+    재귀적으로 페어를 찾는다.
+
+    같은 상대를 피하면서
+    가능한 조합을 찾음.
+*/
+
+function findPairing(players) {
+
+    if (players.length === 0) {
+
+        return [];
+
+    }
+
+
+    if (players.length === 1) {
+
+        return null;
+
+    }
+
+
+    const first =
+        players[0];
+
+
+    const candidates =
+        players
+            .slice(1)
+            .sort(
+                (a, b) => {
+
+                    /*
+                        같은 PTS 상대를 우선
+                    */
+
+                    const sameA =
+                        a.pts === first.pts
+                            ? 0
+                            : 1;
+
+                    const sameB =
+                        b.pts === first.pts
+                            ? 0
+                            : 1;
+
+
+                    if (sameA !== sameB) {
+
+                        return sameA - sameB;
+
+                    }
+
+
+                    /*
+                        재대결하지 않은 상대 우선
+                    */
+
+                    const repeatA =
+                        first.opponents.includes(
+                            a.id
+                        )
+                            ? 1
+                            : 0;
+
+                    const repeatB =
+                        first.opponents.includes(
+                            b.id
+                        )
+                            ? 1
+                            : 0;
+
+
+                    return repeatA - repeatB;
+
+                }
+            );
+
+
+    /*
+        랜덤 요소를 조금 섞어서
+        같은 점수의 선수들이 항상
+        똑같은 대진만 받지 않도록 함
+    */
+
+    const randomized =
+        shuffle(candidates);
+
+
+    randomized.sort(
+        (a, b) => {
+
+            const aRepeat =
+                first.opponents.includes(
+                    a.id
+                )
+                    ? 1
+                    : 0;
+
+            const bRepeat =
+                first.opponents.includes(
+                    b.id
+                )
+                    ? 1
+                    : 0;
+
+
+            if (aRepeat !== bRepeat) {
+
+                return aRepeat - bRepeat;
+
+            }
+
+
+            if (
+                a.pts === first.pts
+                &&
+                b.pts !== first.pts
+            ) {
+
+                return -1;
+
+            }
+
+
+            if (
+                b.pts === first.pts
+                &&
+                a.pts !== first.pts
+            ) {
+
+                return 1;
+
+            }
+
+
+            return 0;
+
+        }
+    );
+
+
+    for (const opponent of randomized) {
+
+        const rest =
+            players.filter(
+                player =>
+                    player.id !== first.id
+                    &&
+                    player.id !== opponent.id
+            );
+
+
+        /*
+            우선 재대결 없는 조합 시도
+        */
+
+        if (
+            first.opponents.includes(
+                opponent.id
+            )
+        ) {
+
+            continue;
+
+        }
+
+
+        const result =
+            findPairing(rest);
+
+
+        if (result !== null) {
+
+            return [
+
+                [
+                    first,
+                    opponent
+                ],
+
+                ...result
+
+            ];
+
+        }
+
+    }
+
+
+    /*
+        재대결을 피할 수 없다면
+        한 번만 재대결을 허용한다.
+    */
+
+    for (const opponent of randomized) {
+
+        const rest =
+            players.filter(
+                player =>
+                    player.id !== first.id
+                    &&
+                    player.id !== opponent.id
+            );
+
+
+        const result =
+            findPairingAllowRepeat(
+                rest
+            );
+
+
+        if (result !== null) {
+
+            return [
+
+                [
+                    first,
+                    opponent
+                ],
+
+                ...result
+
+            ];
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+function findPairingAllowRepeat(players) {
+
+    if (players.length === 0) {
+
+        return [];
+
+    }
+
+
+    if (players.length === 1) {
+
+        return null;
+
+    }
+
+
+    const first =
+        players[0];
+
+
+    const candidates =
+        shuffle(
+            players.slice(1)
+        );
+
+
+    candidates.sort(
+        (a, b) => {
+
+            const repeatA =
+                first.opponents.includes(
+                    a.id
+                )
+                    ? 1
+                    : 0;
+
+            const repeatB =
+                first.opponents.includes(
+                    b.id
+                )
+                    ? 1
+                    : 0;
+
+
+            return repeatA - repeatB;
+
+        }
+    );
+
+
+    for (const opponent of candidates) {
+
+        const rest =
+            players.filter(
+                player =>
+                    player.id !== first.id
+                    &&
+                    player.id !== opponent.id
+            );
+
+
+        const result =
+            findPairingAllowRepeat(
+                rest
+            );
+
+
+        if (result !== null) {
+
+            return [
+
+                [
+                    first,
+                    opponent
+                ],
+
+                ...result
+
+            ];
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
+   라운드 생성
+===================================================== */
+
+
+function ensureWhiteByRound3(pairings, roundNumber) {
+    if (!tournament || roundNumber > 3) return;
+
+    const whiteCount = {};
+    tournament.players.forEach(p => whiteCount[p.id] = 0);
+
+    // Count whites from completed/generated previous rounds.
+    (tournament.rounds || []).forEach(r => {
+        (r.pairings || []).forEach(pair => {
+            if (pair.white && whiteCount[pair.white] !== undefined) {
+                whiteCount[pair.white]++;
+            }
+        });
+    });
+
+    const neverWhite = tournament.players
+        .filter(p => whiteCount[p.id] === 0)
+        .sort(() => Math.random() - 0.5);
+
+    for (const player of neverWhite) {
+        const pair = pairings.find(x => x.white === player.id || x.black === player.id);
+        if (!pair) continue;
+
+        if (pair.white !== player.id) {
+            const oldWhite = pair.white;
+            pair.white = player.id;
+            pair.black = oldWhite;
+        }
+    }
+}
+
+function createRound(roundNumber) {
+
+    let pairings;
+
+
+    if (roundNumber === 1) {
+
+        pairings =
+            createFirstRound();
+
+    } else {
+
+        pairings =
+            createSwissRound();
+
+    }
+
+
+    tournament.currentRound =
+        roundNumber;
+
+
+    tournament.currentPairings =
+        pairings;
+
+
+    /*
+        아직 기록되지 않은 현재 라운드
+    */
+
+    tournament.rounds.push({
+
+        number: roundNumber,
+
+        pairings,
+
+        completed: false
+
+    });
+
+
+    renderAll();
+
+}
+
+
+/* =====================================================
+   결과 판정
+===================================================== */
+
+function setResult(pairingId, result) {
+
+    const round = tournament.rounds.find(
+        r => r.number === tournament.currentRound
+    );
+
+    if (!round) return;
+
+    const pairing = round.pairings.find(
+        p => p.id === pairingId
+    );
+
+    if (!pairing || pairing.bye) return;
+
+    /*
+        결과는 값만 저장하고,
+        PTS / PS / BH / 승자승 관련 데이터는
+        매번 전체 라운드 기록을 기준으로 처음부터 다시 계산한다.
+
+        이렇게 해야 결과를 수정해도 PS가 중복으로 올라가지 않는다.
+    */
+    pairing.result = result;
+
+    updateRoundCompleted(round);
+    recalculateAllStats();
+
+    renderAll();
+}
+
+
+/* =====================================================
+   모든 점수 / 전적 다시 계산
+===================================================== */
+
+function recalculateAllStats() {
+
+    if (!tournament) return;
+
+    const points = tournament.points;
+
+    /* 기존 계산값 초기화 */
+    for (const player of tournament.players) {
+
+        player.pts = 0;
+        player.ps = 0;
+
+        player.wins = 0;
+        player.draws = 0;
+        player.losses = 0;
+        player.games = 0;
+
+        player.byes = 0;
+        player.hadBye = false;
+
+        player.opponents = [];
+        player.results = {};
+        player.colorHistory = [];
+    }
+
+    const rounds = [...tournament.rounds]
+        .sort((a, b) => a.number - b.number);
+
+    for (const round of rounds) {
+
+        const roundComplete = round.pairings.every(
+            pairing => pairing.bye || !!pairing.result
+        );
+
+        round.completed = roundComplete;
+
+        /*
+            완료되지 않은 라운드에서도 이미 끝난 경기의 PTS/전적은 표시한다.
+            다만 BYE는 라운드가 완전히 끝났을 때 확정한다.
+        */
+        for (const pairing of round.pairings) {
+
+            if (pairing.bye) {
+
+                if (!roundComplete) continue;
+
+                const player = getPlayer(pairing.playerId);
+                if (!player) continue;
+
+                const before = player.pts;
+                player.pts += points.win;
+                player.wins++;
+                player.byes++;
+                player.hadBye = true;
+
+                /*
+                    PS 규칙:
+                    이 라운드에서 PTS가 실제로 증가한 경우에만
+                    증가 후의 누적 PTS를 PS에 더한다.
+                */
+                if (player.pts > before) {
+                    player.ps += player.pts;
+                }
+
+                continue;
+            }
+
+            if (!pairing.result) continue;
+
+            const white = getPlayer(pairing.whiteId);
+            const black = getPlayer(pairing.blackId);
+
+            if (!white || !black) continue;
+
+            const whiteBefore = white.pts;
+            const blackBefore = black.pts;
+
+            /* 실제로 결과가 입력된 경기만 상대 기록에 포함 */
+            white.opponents.push(black.id);
+            black.opponents.push(white.id);
+
+            white.colorHistory.push("W");
+            black.colorHistory.push("B");
+
+            if (pairing.result === "1-0") {
+
+                white.pts += points.win;
+                black.pts += points.loss;
+
+                white.wins++;
+                black.losses++;
+
+                white.games++;
+                black.games++;
+
+                white.results[black.id] = "win";
+                black.results[white.id] = "loss";
+            }
+
+            else if (pairing.result === "0-1") {
+
+                white.pts += points.loss;
+                black.pts += points.win;
+
+                white.losses++;
+                black.wins++;
+
+                white.games++;
+                black.games++;
+
+                white.results[black.id] = "loss";
+                black.results[white.id] = "win";
+            }
+
+            else if (pairing.result === "0.5-0.5") {
+
+                white.pts += points.draw;
+                black.pts += points.draw;
+
+                white.draws++;
+                black.draws++;
+
+                white.games++;
+                black.games++;
+
+                white.results[black.id] = "draw";
+                black.results[white.id] = "draw";
+            }
+
+            /*
+                ★ PS 계산 ★
+
+                승/무처럼 그 경기에서 PTS가 증가한 선수만
+                '증가한 뒤의 누적 PTS'를 PS에 더한다.
+
+                패배(0점)라면 PTS가 그대로이므로 PS도 그대로다.
+                아직 대국하지 않은 선수의 PS도 절대 올라가지 않는다.
+            */
+            if (white.pts > whiteBefore) {
+                white.ps += white.pts;
+            }
+
+            if (black.pts > blackBefore) {
+                black.ps += black.pts;
+            }
+        }
+    }
+
+    /* currentPairings도 현재 라운드 객체와 다시 맞춰 둔다. */
+    const current = tournament.rounds.find(
+        r => r.number === tournament.currentRound
+    );
+
+    if (current) {
+        tournament.currentPairings = current.pairings;
+    }
+}
+
+
+/* =====================================================
+   라운드 완료 검사
+===================================================== */
+
+function updateRoundCompleted(round) {
+
+    round.completed = round.pairings.every(
+        pairing => pairing.bye || !!pairing.result
+    );
+}
+
+
+/* =====================================================
+   다음 라운드
+===================================================== */
+
+function nextRound() {
+
+    const current =
+        tournament.rounds.find(
+            round =>
+                round.number
+                ===
+                tournament.currentRound
+        );
+
+
+    if (!current) {
+
+        return;
+
+    }
+
+
+    /*
+        현재 라운드가 끝났는지 확인
+    */
+
+    const complete =
+        current.pairings.every(
+            pairing => {
+
+                if (pairing.bye) {
+
+                    return true;
+
+                }
+
+                return !!pairing.result;
+
+            }
+        );
+
+
+    if (!complete) {
+
+        alert(
+            "현재 라운드의 모든 경기 결과를 입력하세요."
+        );
+
+        return;
+
+    }
+
+
+    /*
+        완료 처리
+    */
+
+    updateRoundCompleted(
+        current
+    );
+
+
+    /*
+        마지막 라운드
+    */
+
+    if (
+        tournament.currentRound
+        >=
+        tournament.totalRounds
+    ) {
+
+        tournament.finished = true;
+
+        silentAutoSave();
+
+        renderAll();
+
+        alert(
+            "🏆 대회가 종료되었습니다!"
+        );
+
+        return;
+
+    }
+
+
+    recalculateAllStats();
+
+
+    const next =
+        tournament.currentRound + 1;
+
+
+    createRound(next);
+
+
+    silentAutoSave();
+
+}
+
+
+/* =====================================================
+   최종점수 (+/- 보정)
+===================================================== */
+
+function getFinalScore(player) {
+    const adjustment = Number(player.adjustment) || 0;
+    return Number((player.pts + adjustment).toFixed(6));
+}
+
+function adjustFinalScore(playerId, delta) {
+    if (!tournament) return;
+
+    const player = getPlayer(playerId);
+    if (!player) return;
+
+    const currentAdjustment = Number(player.adjustment) || 0;
+    player.adjustment = Number((currentAdjustment + Number(delta)).toFixed(6));
+
+    // 최종점수 = PTS + 보정값.
+    // +/- 버튼을 누르는 즉시 저장하고 순위표를 다시 그린다.
+    renderAll();
+}
+
+
+/* =====================================================
+   순위 계산
+===================================================== */
+
+function comparePlayers(a, b) {
+
+    if (b.pts !== a.pts) {
+        return b.pts - a.pts;
+    }
+
+    if (b.ps !== a.ps) {
+        return b.ps - a.ps;
+    }
+
+    const ab = buchholz(a);
+    const bb = buchholz(b);
+
+    if (bb !== ab) {
+        return bb - ab;
+    }
+
+    const ab1 = buchholzCut1(a);
+    const bb1 = buchholzCut1(b);
+
+    if (bb1 !== ab1) {
+        return bb1 - ab1;
+    }
+
+    return 0;
+
+}
+
+
+/* =====================================================
+   북홀츠
+===================================================== */
+
+/*
+    BH = 실제로 대국한 상대 선수들의 현재 PTS 합계
+
+    BYE는 상대가 없으므로 북홀츠에 포함하지 않는다.
+*/
+function buchholz(player) {
+
+    const opponentIds = new Set(
+        (player.opponents || []).filter(id => id && id !== player.id)
+    );
+
+    let total = 0;
+
+    opponentIds.forEach(id => {
+        const opponent = getPlayer(id);
+        if (opponent) {
+            total += Number(opponent.pts) || 0;
+        }
+    });
+
+    return Number(total.toFixed(6));
+
+}
+
+
+/*
+    BH-1 = 북홀츠에서 가장 낮은 상대 1명의 점수를 제외한 값
+
+    상대가 없거나 1명뿐이면 0이 된다.
+*/
+function buchholzCut1(player) {
+
+    const opponentIds = [
+        ...new Set(
+            (player.opponents || []).filter(id => id && id !== player.id)
+        )
+    ];
+
+    const scores = opponentIds
+        .map(id => getPlayer(id))
+        .filter(Boolean)
+        .map(opponent => Number(opponent.pts) || 0)
+        .sort((a, b) => a - b);
+
+    if (scores.length <= 1) {
+        return 0;
+    }
+
+    return Number(
+        (scores.reduce((sum, value) => sum + value, 0) - scores[0])
+            .toFixed(6)
+    );
+
+}
+
+
+/* =====================================================
+   승자승
+===================================================== */
+
+function headToHead(a, b) {
+
+    const result =
+        a.results[b.id];
+
+
+    if (!result) {
+
+        return 0;
+
+    }
+
+
+    /*
+        a가 b를 이김
+    */
+
+    if (result === "win") {
+
+        return -1;
+
+    }
+
+
+    /*
+        a가 b에게 짐
+    */
+
+    if (result === "loss") {
+
+        return 1;
+
+    }
+
+
+    /*
+        무승부
+    */
+
+    return 0;
+
+}
+
+
+/*
+    ★ 핵심 순위 정렬
+
+    PTS가 같은 선수들을 그룹으로 만들고,
+
+    정확히 2명일 경우에만
+    승자승을 먼저 적용한다.
+
+    3명 이상 동점이면
+    승자승을 적용하지 않고
+    PS로 바로 간다.
+*/
+
+function sortStandings() {
+
+    const players = [...tournament.players];
+
+    const groups = new Map();
+
+    players.forEach(player => {
+        const key = getFinalScore(player);
+
+        if (!groups.has(key)) {
+            groups.set(key, []);
+        }
+
+        groups.get(key).push(player);
+    });
+
+    const sortedGroups = [...groups.entries()].sort(
+        (a, b) => b[0] - a[0]
+    );
+
+    const final = [];
+
+    for (const [, group] of sortedGroups) {
+
+        /*
+            PTS 동점자가 정확히 2명일 때만
+            승자승을 적용한다.
+        */
+        if (group.length === 2 && group[0].pts === group[1].pts) {
+
+            const a = group[0];
+            const b = group[1];
+            const h2h = headToHead(a, b);
+
+            if (h2h < 0) {
+                final.push(a, b);
+                continue;
+            }
+
+            if (h2h > 0) {
+                final.push(b, a);
+                continue;
+            }
+        }
+
+        /*
+            3명 이상 PTS 동점이거나
+            2명 동점이지만 승자승으로 결정되지 않은 경우:
+
+            PS → BH → BH-1
+        */
+        group.sort((a, b) => {
+
+            if (b.ps !== a.ps) {
+                return b.ps - a.ps;
+            }
+
+            const aBH = buchholz(a);
+            const bBH = buchholz(b);
+
+            if (bBH !== aBH) {
+                return bBH - aBH;
+            }
+
+            const aBH1 = buchholzCut1(a);
+            const bBH1 = buchholzCut1(b);
+
+            if (bBH1 !== aBH1) {
+                return bBH1 - aBH1;
+            }
+
+            /* 여기부터는 실제 동점. 등록 순서 유지 */
+            return 0;
+        });
+
+        final.push(...group);
+    }
+
+    return final;
+}
+
+
+/* =====================================================
+   동점 여부
+===================================================== */
+
+function isTieAtFinalStage(player, standings, index) {
+
+    function sameFinalCriteria(a, b) {
+
+        if (getFinalScore(a) !== getFinalScore(b)) return false;
+        if (a.pts !== b.pts) return false;
+        if (a.ps !== b.ps) return false;
+
+        if (buchholz(a) !== buchholz(b)) return false;
+        if (buchholzCut1(a) !== buchholzCut1(b)) return false;
+
+        /* PTS 동점 2명인 경우 승자승까지 확인 */
+        const tied = standings.filter(x => x.pts === a.pts);
+
+        if (tied.length === 2) {
+            return headToHead(a, b) === 0;
+        }
+
+        return true;
+    }
+
+    if (index > 0 && sameFinalCriteria(player, standings[index - 1])) {
+        return true;
+    }
+
+    if (index < standings.length - 1 && sameFinalCriteria(player, standings[index + 1])) {
+        return true;
+    }
+
+    return false;
+}
+
+
+/* =====================================================
+   현재 라운드 렌더링
+===================================================== */
+
+function renderCurrentRound() {
+
+    const round =
+        tournament.rounds.find(
+            r =>
+                r.number
+                ===
+                tournament.currentRound
+        );
+
+
+    if (!round) {
+
+        return;
+
+    }
+
+
+    $("roundTitle").textContent =
+        `ROUND ${round.number}`;
+
+    const tournamentNameDisplay = $("tournamentNameDisplay");
+    if (tournamentNameDisplay) {
+        tournamentNameDisplay.textContent =
+            tournament.name || "";
+    }
+
+
+    const container =
+        $("pairings");
+
+
+    container.innerHTML = "";
+
+
+    round.pairings.forEach(
+        (pairing, index) => {
+
+            /*
+                BYE
+            */
+
+            if (pairing.bye) {
+
+                const player =
+                    getPlayer(
+                        pairing.playerId
+                    );
+
+
+                container.innerHTML += `
+
+                    <div class="bye">
+
+                        <div class="bye-left">
+
+                            🏆
+
+                            No.${player.no || ""} · ${escapeHTML(
+                                player.name
+                            )}
+
+                            — BYE
+
+                        </div>
+
+
+                        <div class="bye-right">
+
+                            승점
+                            ${formatNumber(
+                                tournament.points.win
+                            )}
+
+                        </div>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            const white =
+                getPlayer(
+                    pairing.whiteId
+                );
+
+            const black =
+                getPlayer(
+                    pairing.blackId
+                );
+
+
+            const result =
+                pairing.result;
+
+
+            container.innerHTML += `
+
+                <div class="pairing">
+
+                    <div class="pairing-top">
+
+                        <span>
+                            BOARD ${index + 1}
+                        </span>
+
+                        <span>
+                            PTS
+                            ${formatNumber(white.pts)}
+                            -
+                            ${formatNumber(black.pts)}
+                        </span>
+
+                    </div>
+
+
+                    <div class="match">
+
+
+                        <!-- 백 -->
+
+                        <div class="player white">
+
+                            <div class="player-name">
+
+                                <span
+                                    class="color-badge color-white"
+                                >
+                                    ● 백
+                                </span>
+
+                                <span class="player-no">No.${white.no || ""}</span> ${escapeHTML(
+                                    white.name
+                                )}
+
+                            </div>
+
+
+                            <div class="player-info">
+
+                                PTS:
+                                ${formatNumber(
+                                    white.pts
+                                )}
+
+                                ·
+
+                                PS:
+                                ${formatNumber(
+                                    white.ps
+                                )}
+
+                            </div>
+
+
+                            <div class="result-area">
+
+                                <div class="result-label">
+                                    결과
+                                </div>
+
+
+                                <div class="result-buttons">
+
+                                    <button
+                                        class="
+                                            result-button
+                                            ${
+                                                result
+                                                ===
+                                                "1-0"
+                                                    ? "selected"
+                                                    : ""
+                                            }
+                                        "
+                                        onclick="
+                                            setResult(
+                                                '${pairing.id}',
+                                                '1-0'
+                                            )
+                                        "
+                                    >
+                                        승
+                                    </button>
+
+
+                                    <button
+                                        class="
+                                            result-button
+                                            ${
+                                                result
+                                                ===
+                                                "0.5-0.5"
+                                                    ? "selected"
+                                                    : ""
+                                            }
+                                        "
+                                        onclick="
+                                            setResult(
+                                                '${pairing.id}',
+                                                '0.5-0.5'
+                                            )
+                                        "
+                                    >
+                                        무
+                                    </button>
+
+
+                                    <button
+                                        class="
+                                            result-button
+                                            ${
+                                                result
+                                                ===
+                                                "0-1"
+                                                    ? "selected"
+                                                    : ""
+                                            }
+                                        "
+                                        onclick="
+                                            setResult(
+                                                '${pairing.id}',
+                                                '0-1'
+                                            )
+                                        "
+                                    >
+                                        패
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="vs">
+
+                            VS
+
+                            <br>
+
+                            <small>
+                                ${
+                                    result
+                                    || "-"
+                                }
+                            </small>
+
+                        </div>
+
+
+                        <!-- 흑 -->
+
+                        <div class="player black">
+
+                            <div class="player-name">
+
+                                <span
+                                    class="color-badge color-black"
+                                >
+                                    ● 흑
+                                </span>
+
+                                <span class="player-no">No.${black.no || ""}</span> ${escapeHTML(
+                                    black.name
+                                )}
+
+                            </div>
+
+
+                            <div class="player-info">
+
+                                PTS:
+                                ${formatNumber(
+                                    black.pts
+                                )}
+
+                                ·
+
+                                PS:
+                                ${formatNumber(
+                                    black.ps
+                                )}
+
+                            </div>
+
+
+                            <div class="result-area">
+
+                                <div class="result-label">
+                                    결과
+                                </div>
+
+
+                                <div class="result-buttons">
+
+                                    <button
+                                        class="
+                                            result-button
+                                            ${
+                                                result
+                                                ===
+                                                "0-1"
+                                                    ? "selected"
+                                                    : ""
+                                            }
+                                        "
+                                        onclick="
+                                            setResult(
+                                                '${pairing.id}',
+                                                '0-1'
+                                            )
+                                        "
+                                    >
+                                        승
+                                    </button>
+
+
+                                    <button
+                                        class="
+                                            result-button
+                                            ${
+                                                result
+                                                ===
+                                                "0.5-0.5"
+                                                    ? "selected"
+                                                    : ""
+                                            }
+                                        "
+                                        onclick="
+                                            setResult(
+                                                '${pairing.id}',
+                                                '0.5-0.5'
+                                            )
+                                        "
+                                    >
+                                        무
+                                    </button>
+
+
+                                    <button
+                                        class="
+                                            result-button
+                                            ${
+                                                result
+                                                ===
+                                                "1-0"
+                                                    ? "selected"
+                                                    : ""
+                                            }
+                                        "
+                                        onclick="
+                                            setResult(
+                                                '${pairing.id}',
+                                                '1-0'
+                                            )
+                                        "
+                                    >
+                                        패
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    /*
+        다음 라운드 버튼
+    */
+
+    const complete =
+        round.pairings.every(
+            pairing =>
+                pairing.bye
+                ||
+                !!pairing.result
+        );
+
+
+    const button =
+        $("nextRoundButton");
+
+
+    if (
+        tournament.finished
+    ) {
+
+        button.textContent =
+            "🏆 대회 종료";
+
+        button.disabled = true;
+
+        button.classList.remove(
+            "btn-green"
+        );
+
+        button.classList.add(
+            "btn-gray"
+        );
+
+    }
+
+    else if (
+        tournament.currentRound
+        >=
+        tournament.totalRounds
+    ) {
+
+        button.textContent =
+            "🏆 대회 종료";
+
+        button.disabled =
+            !complete;
+
+    }
+
+    else {
+
+        button.textContent =
+            "다음 라운드 →";
+
+        button.disabled =
+            !complete;
+
+    }
+
+}
+
+
+/* =====================================================
+   순위표 렌더링
+===================================================== */
+
+function renderStandings() {
+
+    const standings =
+        sortStandings();
+
+
+    const tbody =
+        $("standings");
+
+
+    tbody.innerHTML = "";
+
+
+    standings.forEach(
+        (player, index) => {
+
+            const tie =
+                isTieAtFinalStage(
+                    player,
+                    standings,
+                    index
+                );
+
+
+            tbody.innerHTML += `
+
+                <tr>
+
+                    <td>
+
+                        <span
+                            class="rank-number"
+                        >
+                            ${player.no || index + 1}
+                        </span>
+
+                        ${
+                            tie
+                            ?
+                            `
+                            <span class="tie">
+                                동점
+                            </span>
+                            `
+                            :
+                            ""
+                        }
+
+                    </td>
+
+
+                    <td class="name">
+
+                        ${escapeHTML(
+                            player.name
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="score">
+                            ${formatNumber(
+                                player.pts
+                            )}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <div class="final-score-control">
+                            <button
+                                class="score-adjust"
+                                title="최종점수 -0.5"
+                                onclick="adjustFinalScore('${player.id}', -0.5)"
+                            >−</button>
+
+                            <span class="score final-score-value">
+                                ${formatNumber(getFinalScore(player))}
+                            </span>
+
+                            <button
+                                class="score-adjust"
+                                title="최종점수 +0.5"
+                                onclick="adjustFinalScore('${player.id}', 0.5)"
+                            >+</button>
+                        </div>
+
+                        ${player.adjustment ? `<small class="score-adjustment">보정 ${player.adjustment > 0 ? '+' : ''}${formatNumber(player.adjustment)}</small>` : ''}
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="score">
+                            ${formatNumber(
+                                player.ps
+                            )}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="score">
+                            ${formatNumber(
+                                buchholz(player)
+                            )}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="score">
+                            ${formatNumber(
+                                buchholzCut1(player)
+                            )}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+                        ${player.wins}
+                    </td>
+
+
+                    <td>
+                        ${player.draws}
+                    </td>
+
+
+                    <td>
+                        ${player.losses}
+                    </td>
+
+
+                    <td>
+                        ${player.byes}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   라운드 기록
+===================================================== */
+
+function renderHistory() {
+
+    const container =
+        $("history");
+
+
+    container.innerHTML = "";
+
+
+    if (
+        tournament.rounds.length === 0
+    ) {
+
+        container.innerHTML =
+            `
+            <div class="empty">
+                아직 라운드 기록이 없습니다.
+            </div>
+            `;
+
+        return;
+
+    }
+
+
+    /*
+        최신 라운드부터
+    */
+
+    const rounds =
+        [...tournament.rounds]
+            .reverse();
+
+
+    rounds.forEach(
+        (round, reverseIndex) => {
+
+            const open =
+                reverseIndex === 0;
+
+
+            let body = "";
+
+
+            round.pairings.forEach(
+                pairing => {
+
+                    if (pairing.bye) {
+
+                        const player =
+                            getPlayer(
+                                pairing.playerId
+                            );
+
+
+                        body += `
+
+                            <div class="history-bye">
+
+                                🏆
+
+                                ${escapeHTML(
+                                    player.name
+                                )}
+
+                                — BYE
+
+                            </div>
+
+                        `;
+
+                        return;
+
+                    }
+
+
+                    const white =
+                        getPlayer(
+                            pairing.whiteId
+                        );
+
+                    const black =
+                        getPlayer(
+                            pairing.blackId
+                        );
+
+
+                    let resultText =
+                        "미입력";
+
+
+                    if (
+                        pairing.result
+                        ===
+                        "1-0"
+                    ) {
+
+                        resultText =
+                            "1 - 0";
+
+                    }
+
+                    else if (
+                        pairing.result
+                        ===
+                        "0-1"
+                    ) {
+
+                        resultText =
+                            "0 - 1";
+
+                    }
+
+                    else if (
+                        pairing.result
+                        ===
+                        "0.5-0.5"
+                    ) {
+
+                        resultText =
+                            "½ - ½";
+
+                    }
+
+
+                    body += `
+
+                        <div class="history-match">
+
+                            <span>
+
+                                ⚪
+                                ${escapeHTML(
+                                    white.name
+                                )}
+
+                                &nbsp;
+
+                                ${resultText}
+
+                                &nbsp;
+
+                                ${escapeHTML(
+                                    black.name
+                                )}
+                                ⚫
+
+                            </span>
+
+
+                            <span>
+                                ${pairing.result
+                                    ? "완료"
+                                    : "대기"
+                                }
+                            </span>
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+
+            container.innerHTML += `
+
+                <div class="history">
+
+                    <div
+                        class="history-header"
+                        onclick="
+                            toggleHistory(
+                                this
+                            )
+                        "
+                    >
+
+                        <span>
+                            ROUND ${round.number}
+                            ${round.completed ? "✓" : ""}
+                        </span>
+
+                        <span>
+                            ${open ? "▲" : "▼"}
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="
+                            history-body
+                            ${open ? "open" : ""}
+                        "
+                    >
+
+                        ${body}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+function toggleHistory(header) {
+
+    const body =
+        header.nextElementSibling;
+
+
+    body.classList.toggle(
+        "open"
+    );
+
+
+    const arrow =
+        header.querySelector(
+            "span:last-child"
+        );
+
+
+    if (
+        body.classList.contains(
+            "open"
+        )
+    ) {
+
+        arrow.textContent = "▲";
+
+    }
+
+    else {
+
+        arrow.textContent = "▼";
+
+    }
+
+}
+
+
+/* =====================================================
+   통계
+===================================================== */
+
+function renderStats() {
+
+    $("currentRound").textContent =
+        `${tournament.currentRound} / ${tournament.totalRounds}`;
+
+    $("playerCount").textContent =
+        tournament.players.length;
+
+    /*
+       남은 경기 수는 현재 라운드가 아니라
+       대회 전체에서 아직 끝나지 않은 경기 수를 표시한다.
+       이미 생성된 라운드는 실제 페어링을 사용하고,
+       미래 라운드는 참가자 수 기준으로 라운드당 floor(N/2)경기를 예상한다.
+       BYE는 경기 수에 포함하지 않는다.
+    */
+    let finished = 0;
+    let remaining = 0;
+
+    for (const round of tournament.rounds) {
+        for (const pairing of round.pairings) {
+            if (pairing.bye) continue;
+
+            if (pairing.result) {
+                finished++;
+            } else {
+                remaining++;
+            }
+        }
+    }
+
+    const generatedRounds = tournament.rounds.length;
+    const gamesPerFutureRound = Math.floor(
+        tournament.players.length / 2
+    );
+    const futureRounds = Math.max(
+        0,
+        tournament.totalRounds - generatedRounds
+    );
+
+    remaining += futureRounds * gamesPerFutureRound;
+
+    $("finishedGames").textContent = finished;
+    $("remainingGames").textContent = remaining;
+
+}
+
+
+/* =====================================================
+   숫자 표시
+===================================================== */
+
+function formatNumber(value) {
+
+    const rounded =
+        Math.round(
+            value * 100
+        ) / 100;
+
+
+    if (
+        Number.isInteger(
+            rounded
+        )
+    ) {
+
+        return String(
+            rounded
+        );
+
+    }
+
+
+    return String(
+        rounded
+    );
+
+}
+
+
+/* =====================================================
+   전체 렌더링
+===================================================== */
+
+function renderAll() {
+
+    if (!tournament) {
+
+        return;
+
+    }
+
+
+    renderStats();
+
+    renderCurrentRound();
+
+    renderStandings();
+
+    renderHistory();
+
+}
+
+
+/* =====================================================
+   대회 화면 표시
+===================================================== */
+
+function showTournament() {
+
+    $("setup").style.display =
+        "none";
+
+    $("tournament").style.display =
+        "block";
+
+
+    renderAll();
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+/* =====================================================
+   localStorage
+===================================================== */
+
+
+/* =====================================================
+   저장 기록 관리
+===================================================== */
+function getSavedTournamentRecords() {
+    try {
+        return JSON.parse(localStorage.getItem("swissChessTournament_history") || "[]");
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveTournamentHistory(payload) {
+    const records = getSavedTournamentRecords();
+
+    records.unshift({
+        id: Date.now().toString(),
+        savedAt: payload.savedAt,
+        tournament: payload.tournament
+    });
+
+    // 최근 30개까지만 보관
+    localStorage.setItem(
+        "swissChessTournament_history",
+        JSON.stringify(records.slice(0, 30))
+    );
+}
+
+function formatSavedDate(iso) {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "시간 정보 없음";
+
+    return d.toLocaleString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+    });
+}
+
+function showSavedRecords() {
+    const list = document.getElementById("savedRecordsList");
+    if (!list) return;
+
+    const records = getSavedTournamentRecords();
+
+    if (!records.length) {
+        list.innerHTML = `
+            <div class="saved-record-empty">
+                아직 저장된 대회 기록이 없습니다.<br>
+                <b>💾 저장</b>을 누르면 여기에 저장 시간과 대회 기록이 표시됩니다.
+            </div>
+        `;
+    } else {
+        list.innerHTML = records.map((record, index) => {
+            const t = record.tournament || {};
+            const players = Array.isArray(t.players) ? t.players.length : 0;
+            const rounds = Array.isArray(t.rounds) ? t.rounds.length : 0;
+            const title = t.name || t.title || `체스 대회 기록 #${records.length - index}`;
+
+            return `
+                <div class="saved-record">
+                    <div class="saved-record-info">
+                        <div class="saved-record-name">${escapeHtml(String(title))}</div>
+                        <div class="saved-record-time">🕒 ${formatSavedDate(record.savedAt)}</div>
+                        <div class="saved-record-meta">👥 ${players}명 · 🔄 ${rounds}라운드</div>
+                    </div>
+                    <div class="saved-record-actions">
+                        <button class="saved-record-load" type="button"
+                            onclick="loadSavedRecord('${record.id}')">불러오기</button>
+                        <button class="saved-record-download" type="button"
+                            onclick="downloadSavedRecord('${record.id}')">JSON</button>
+                        <button class="saved-record-delete" type="button"
+                            onclick="deleteSavedRecord('${record.id}')">삭제</button>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    document.getElementById("savedRecordsModal").style.display = "flex";
+}
+
+function closeSavedRecords() {
+    const modal = document.getElementById("savedRecordsModal");
+    if (modal) modal.style.display = "none";
+}
+
+function loadSavedRecord(id) {
+    const records = getSavedTournamentRecords();
+    const record = records.find(r => String(r.id) === String(id));
+
+    if (!record || !record.tournament) {
+        alert("기록을 찾을 수 없습니다.");
+        return;
+    }
+
+    if (!confirm(`이 저장 기록을 불러올까요?\n\n🕒 ${formatSavedDate(record.savedAt)}`)) {
+        return;
+    }
+
+    tournament = JSON.parse(JSON.stringify(record.tournament));
+
+    const nameInput =
+        document.getElementById("tournamentName") ||
+        document.querySelector('input[name="tournamentName"]') ||
+        document.querySelector('input[placeholder*="대회"]');
+
+    if (nameInput) {
+        nameInput.value =
+            record.tournament.name ||
+            record.tournament.title ||
+            "";
+    }
+
+
+
+    if (Array.isArray(tournament.players)) {
+        tournament.players.forEach(player => {
+            if (!player.results) player.results = {};
+            if (!player.opponents) player.opponents = {};
+            if (typeof player.games !== "number") player.games = 0;
+            if (!player._psRounds) player._psRounds = [];
+        });
+    }
+
+    recalculateAllStats();
+
+    closeSavedRecords();
+
+    const status = document.getElementById("saveStatus");
+    if (status) {
+        status.textContent = `✓ 기록 불러옴 ${formatSavedDate(record.savedAt)}`;
+        status.style.color = "#2563eb";
+    }
+
+    showTournament();
+}
+
+
+function deleteSavedRecord(id) {
+    const records = getSavedTournamentRecords();
+    const record = records.find(r => String(r.id) === String(id));
+
+    if (!record) {
+        alert("기록을 찾을 수 없습니다.");
+        return;
+    }
+
+    const name =
+        record.tournament?.name ||
+        record.tournament?.title ||
+        "이 대회 기록";
+
+    if (!confirm(`"${name}" 기록을 삭제할까요?\n\n삭제하면 기록 보기 목록에서 제거됩니다.`)) {
+        return;
+    }
+
+    const nextRecords = records.filter(
+        r => String(r.id) !== String(id)
+    );
+
+    localStorage.setItem(
+        "swissChessTournament_history",
+        JSON.stringify(nextRecords)
+    );
+
+    showSavedRecords();
+}
+
+function downloadSavedRecord(id) {
+    const records = getSavedTournamentRecords();
+    const record = records.find(r => String(r.id) === String(id));
+
+    if (!record) {
+        alert("기록을 찾을 수 없습니다.");
+        return;
+    }
+
+    const payload = {
+        version: 2,
+        savedAt: record.savedAt,
+        tournament: record.tournament
+    };
+
+    const blob = new Blob(
+        [JSON.stringify(payload, null, 2)],
+        { type: "application/json;charset=utf-8" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const dateText = new Date(record.savedAt)
+        .toISOString()
+        .slice(0, 19)
+        .replace(/[:T]/g, "-");
+
+    link.href = url;
+    link.download = `chess-tournament-${dateText}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function escapeHtml(value) {
+    return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function silentAutoSave() {
+    if (!tournament) return;
+    try {
+        const payload = {
+            version: 2,
+            savedAt: new Date().toISOString(),
+            tournament: tournament
+        };
+        localStorage.setItem("swissChessTournament_v2", JSON.stringify(payload));
+        localStorage.setItem("swissChessTournament", JSON.stringify(tournament));
+    } catch (error) {
+        console.error("자동 저장 실패:", error);
+    }
+}
+
+
+
+
+function saveTournament(showMessage) {
+    if (!tournament) return;
+
+    try {
+        // 대회 이름은 대회 설정/입력란에서 미리 입력한 이름을 사용합니다.
+        const nameInput =
+            document.getElementById("tournamentName") ||
+            document.querySelector('input[name="tournamentName"]') ||
+            document.querySelector('input[placeholder*="대회"]');
+
+        const typedName = nameInput ? nameInput.value.trim() : "";
+        const finalName =
+            typedName ||
+            tournament.name ||
+            tournament.title ||
+            `체스 대회 ${new Date().toLocaleDateString("ko-KR")}`;
+
+        tournament.name = finalName;
+
+        const savedAt = new Date().toISOString();
+
+        localStorage.setItem("swissChessTournament_v2", JSON.stringify({
+            version: 2,
+            savedAt,
+            tournament
+        }));
+        localStorage.setItem(
+            "swissChessTournament",
+            JSON.stringify(tournament)
+        );
+
+        if (!localStorage.getItem("swissChessTournament_v2")) {
+            throw new Error("브라우저 저장 확인에 실패했습니다.");
+        }
+
+        saveTournamentHistory({
+            savedAt,
+            tournament
+        });
+
+        const status = document.getElementById("saveStatus");
+        if (status) {
+            status.textContent =
+                `✓ "${finalName}" 저장됨 · ${new Date(savedAt).toLocaleString("ko-KR")}`;
+            status.style.color = "#16a34a";
+        }
+
+        if (showMessage) {
+            alert(
+                `💾 저장 완료!\n\n` +
+                `대회명: ${finalName}\n` +
+                `저장 시간: ${new Date(savedAt).toLocaleString("ko-KR")}\n\n` +
+                `📚 기록 보기에서 확인할 수 있습니다.`
+            );
+        }
+    } catch (error) {
+        console.error("저장 실패:", error);
+        if (showMessage) alert("저장에 실패했습니다.");
+    }
+}
+
+function loadTournament() {
+
+    try {
+
+        const savedV2 =
+            localStorage.getItem(
+                "swissChessTournament_v2"
+            );
+
+        const savedOld =
+            localStorage.getItem(
+                "swissChessTournament"
+            );
+
+        if (!savedV2 && !savedOld) {
+
+            renderSetupPlayers();
+
+            return;
+
+        }
+
+        let data = null;
+
+        if (savedV2) {
+            const wrapped = JSON.parse(savedV2);
+            data = wrapped && wrapped.tournament
+                ? wrapped.tournament
+                : wrapped;
+        }
+
+        if (!data && savedOld) {
+            data = JSON.parse(savedOld);
+        }
+
+        if (
+            !data ||
+            !Array.isArray(data.players) ||
+            !Array.isArray(data.rounds)
+        ) {
+
+            renderSetupPlayers();
+
+            return;
+
+        }
+
+
+        const restore =
+            confirm(
+                "저장된 대회가 있습니다.\n\n불러오시겠습니까?"
+            );
+
+
+        if (!restore) {
+
+            renderSetupPlayers();
+
+            return;
+
+        }
+
+
+        tournament =
+            data;
+
+
+        /*
+            예전 데이터와 호환
+        */
+
+        tournament.players.forEach(
+            player => {
+
+                if (
+                    !player.results
+                ) {
+
+                    player.results = {};
+
+                }
+
+
+                if (
+                    !player.opponents
+                ) {
+
+                    player.opponents = [];
+
+                }
+
+
+                if (
+                    !player.colorHistory
+                ) {
+
+                    player.colorHistory = [];
+
+                }
+
+
+                if (
+                    typeof player.ps
+                    !==
+                    "number"
+                ) {
+
+                    player.ps = 0;
+
+                }
+
+
+                if (
+                    typeof player.adjustment
+                    !==
+                    "number"
+                ) {
+
+                    player.adjustment = 0;
+
+                }
+
+
+                if (
+                    typeof player.byes
+                    !==
+                    "number"
+                ) {
+
+                    player.byes = 0;
+
+                }
+
+
+                if (
+                    typeof player.games
+                    !==
+                    "number"
+                ) {
+
+                    player.games = 0;
+
+                }
+
+
+                if (
+                    !player._psRounds
+                ) {
+
+                    player._psRounds = [];
+
+                }
+
+            }
+        );
+
+
+        /* 저장된 예전 계산값이 꼬였어도 라운드 기록으로 복구 */
+        recalculateAllStats();
+
+        const status = $("saveStatus");
+        if (status) {
+            status.textContent = "✓ 저장된 대회 불러옴";
+            status.style.color = "#2563eb";
+        }
+
+        showTournament();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "불러오기 실패:",
+            error
+        );
+
+        renderSetupPlayers();
+
+    }
+
+}
+
+
+/* =====================================================
+   새 대회
+===================================================== */
+
+function newTournament() {
+
+    const ok =
+        confirm(
+            "현재 대회를 삭제하고 새 대회를 시작할까요?"
+        );
+
+
+    if (!ok) {
+
+        return;
+
+    }
+
+
+    localStorage.removeItem(
+        "swissChessTournament"
+    );
+
+
+    tournament = null;
+
+    setupPlayers = [];
+
+
+    $("tournament").style.display =
+        "none";
+
+    $("setup").style.display =
+        "block";
+
+
+    $("playerList").innerHTML =
+        `
+        <div class="empty">
+            참가자를 추가하세요.
+        </div>
+        `;
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+/* =====================================================
+   자동 저장 안전장치
+===================================================== */
+
+/* =====================================================
+   시작
+===================================================== */
+
+const passwordInput = $("passwordInput");
+
+passwordInput.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        checkPassword();
+    }
+});
+
+passwordInput.focus();
+
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+async function exportStandingsImage() {
+    const target =
+        document.querySelector("#standings") ||
+        document.querySelector("#standingsTable") ||
+        document.querySelector(".standings") ||
+        document.querySelector(".tournament-content") ||
+        document.querySelector("main");
+
+    if (!target) {
+        alert("저장할 순위표 영역을 찾지 못했습니다.");
+        return;
+    }
+
+    if (typeof html2canvas === "undefined") {
+        alert("이미지 저장 기능을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.");
+        return;
+    }
+
+    const btn = document.getElementById("exportImageBtn");
+    const oldText = btn ? btn.textContent : "";
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = "이미지 생성 중...";
+    }
+
+    try {
+        const canvas = await html2canvas(target, {
+            backgroundColor: "#ffffff",
+            scale: Math.max(2, window.devicePixelRatio || 1),
+            useCORS: true,
+            logging: false
+        });
+
+        const link = document.createElement("a");
+        const now = new Date();
+        const pad = n => String(n).padStart(2, "0");
+        const filename =
+            `chess-standings-${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}-${pad(now.getHours())}-${pad(now.getMinutes())}.png`;
+
+        link.download = filename;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    } catch (error) {
+        console.error("이미지 저장 실패:", error);
+        alert("이미지 저장에 실패했습니다.");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = oldText || "🖼️ PNG 저장";
+        }
+    }
+}
+</script>
+
+</body>
+</html>
+
+Copyright 2026 by Dongrae Elementary School Chess Club  ,  All Rights Reserved
