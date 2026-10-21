@@ -4390,7 +4390,11 @@ async function deleteSavedRecord(id) {
     if (!confirm(`"${name}" 기록을 삭제할까요?\n\n삭제하면 클라우드 기록 보기 목록에서도 제거됩니다.`)) return;
     try {
         if (record.cloud || cloudRecordIds.has(String(record.id))) {
-            await cloudRequest("delete", { id: String(record.id) });
+            // 삭제 비밀번호는 브라우저 코드에 포함되어 있으므로 누구나 확인할 수 있습니다.
+            await cloudRequest("delete", {
+                id: String(record.id),
+                delete_password: "DRES_Chess_Admin"
+            });
         } else {
             const nextRecords = getSavedTournamentRecords().filter(r => String(r.id) !== String(id));
             localStorage.setItem("swissChessTournament_history", JSON.stringify(nextRecords));
