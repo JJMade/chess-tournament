@@ -755,6 +755,56 @@ td.name {
         gap: 5px;
     }
 }
+
+
+/* 이용 안내 동의 모달 */
+#usageAgreementModal {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.68);
+    backdrop-filter: blur(4px);
+    box-sizing: border-box;
+}
+#usageAgreementModal.is-open {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+.usage-agreement-box {
+    width: min(480px, 100%);
+    padding: 30px;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 24px 80px rgba(0,0,0,.28);
+    text-align: center;
+    animation: agreementPop .18s ease-out;
+}
+.usage-agreement-icon { font-size: 42px; margin-bottom: 8px; }
+.usage-agreement-box h2 { margin: 0 0 12px; color: #111827; }
+.usage-agreement-box p { color: #4b5563; line-height: 1.75; margin: 0 0 20px; }
+.usage-agreement-warning {
+    margin: 18px 0 22px;
+    padding: 16px;
+    border-radius: 13px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    font-weight: 700;
+    line-height: 1.7;
+    text-align: left;
+}
+#agreeUsageButton { width: 100%; padding: 14px 18px; font-size: 16px; }
+@keyframes agreementPop {
+    from { opacity: 0; transform: translateY(8px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 </style>
 
 
@@ -898,7 +948,7 @@ td.name {
 <div id="passwordScreen">
     <div class="password-box">
         <div class="password-logo">♟</div>
-        <h2>DRES Chess / v. 2.02 </h2>
+        <h2>DRES Chess / v. 2.09</h2>
         <p>대회 관리자 페이지에 들어가려면 비밀번호를 입력하세요.</p>
 
         <input
@@ -919,6 +969,22 @@ td.name {
     </div>
 </div>
 
+<!-- 로그인 후 표시되는 이용 안내 동의 창 -->
+<div id="usageAgreementModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="usageAgreementTitle">
+    <div class="usage-agreement-box">
+        <div class="usage-agreement-icon">⚠️</div>
+        <h2 id="usageAgreementTitle">이용 안내</h2>
+        <p>DRES Chess에 오신 것을 환영합니다.</p>
+        <div class="usage-agreement-warning">
+            본 프로그램은 동래초등학교 토요방과후 체스클럽 체스 대회 운영을 위해 제공됩니다.<br>
+            동래초등학교 내에서만 이용해 주시기 바랍니다.<br>
+            점수·대진·기록을 부정하게 조작하거나 프로그램을 악용하지 마세요.<br>
+            공정한 대회를 위해 올바르게 이용해 주세요.
+        </div>
+        <button id="agreeUsageButton" type="button" class="btn btn-primary" onclick="agreeToUsage()">동의합니다.</button>
+    </div>
+</div>
+
 <div class="app">
 
 <!-- =====================================================
@@ -932,7 +998,7 @@ td.name {
         <h1>♟ Chess Tournament</h1>
 
         <p>
-            Swiss System Tournament Manager / v. 2.02
+            Swiss System Tournament Manager / v. 2.09
         </p>
 
     </div>
@@ -1348,21 +1414,63 @@ td.name {
 ===================================================== */
 
 const ACCESS_PASSWORD = "DRES_Chess";
+// Supabase Edge Function URL. Deploy the function in the setup guide, then keep this URL.
+const CLOUD_RECORDS_ENDPOINT = "https://yayahacyijzaxfbckuvr.supabase.co/functions/v1/tournament-records";
+let cloudRecordsAvailable = false;
+let cloudRecordIds = new Set();
+
+function cloudPassword() {
+    return sessionStorage.getItem("dresChessCloudPassword") || "";
+}
+
+async function cloudRequest(action, extra = {}) {
+    const response = await fetch(CLOUD_RECORDS_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: cloudPassword(), action, ...extra })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.error || `클라우드 요청 실패 (${response.status})`);
+    return data;
+}
 
 function checkPassword() {
     const input = $("passwordInput");
     const error = $("passwordError");
 
     if (input.value === ACCESS_PASSWORD) {
-        $("passwordScreen").style.display = "none";
+        sessionStorage.setItem("dresChessCloudPassword", input.value);
         error.textContent = "";
-        initializeApp();
+        const agreementModal = $("usageAgreementModal");
+        const agreeButton = $("agreeUsageButton");
+        if (!agreementModal || !agreeButton) {
+            error.textContent = "이용 안내 창을 불러오지 못했습니다. 페이지를 새로고침해 주세요.";
+            console.error("DRES Chess: 이용 안내 창 또는 동의 버튼을 찾을 수 없습니다.");
+            return;
+        }
+        // 로그인 성공 직후 동의 창을 최상단에 강제로 표시한다.
+        agreementModal.classList.add("is-open");
+        agreementModal.style.setProperty("display", "flex", "important");
+        agreementModal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        $("passwordScreen").style.display = "none";
+        window.requestAnimationFrame(() => agreeButton.focus());
         return;
     }
 
     error.textContent = "비밀번호가 올바르지 않습니다.";
     input.value = "";
     input.focus();
+}
+
+function agreeToUsage() {
+    const agreementModal = $("usageAgreementModal");
+    if (!agreementModal || !agreementModal.classList.contains("is-open")) return;
+    agreementModal.classList.remove("is-open");
+    agreementModal.style.setProperty("display", "none", "important");
+    agreementModal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    initializeApp();
 }
 
 function initializeApp() {
@@ -1766,7 +1874,7 @@ function startTournament() {
 
 
 /* =====================================================
-   1R 랜덤 대진
+   1R 고정 대진 (가나다순 번호 + 백/흑 고정)
 ===================================================== */
 
 function createFirstRound() {
@@ -4123,6 +4231,19 @@ function getSavedTournamentRecords() {
     }
 }
 
+async function refreshCloudRecords() {
+    const data = await cloudRequest("list");
+    const cloudRecords = (data.records || []).map(row => ({
+        id: String(row.id), savedAt: row.saved_at || row.created_at,
+        tournament: row.tournament, cloud: true
+    }));
+    cloudRecordIds = new Set(cloudRecords.map(r => String(r.id)));
+    const localRecords = getSavedTournamentRecords().filter(r => !cloudRecordIds.has(String(r.id)));
+    const merged = [...cloudRecords, ...localRecords].sort((a,b) => new Date(b.savedAt) - new Date(a.savedAt));
+    window.__dresSavedRecords = merged;
+    return merged;
+}
+
 function saveTournamentHistory(payload) {
     const records = getSavedTournamentRecords();
 
@@ -4153,11 +4274,18 @@ function formatSavedDate(iso) {
     });
 }
 
-function showSavedRecords() {
+async function showSavedRecords() {
     const list = document.getElementById("savedRecordsList");
     if (!list) return;
 
-    const records = getSavedTournamentRecords();
+    let records = getSavedTournamentRecords();
+    try {
+        records = await refreshCloudRecords();
+        cloudRecordsAvailable = true;
+    } catch (error) {
+        console.warn("클라우드 기록을 불러오지 못했습니다:", error);
+        cloudRecordsAvailable = false;
+    }
 
     if (!records.length) {
         list.innerHTML = `
@@ -4173,11 +4301,12 @@ function showSavedRecords() {
             const rounds = Array.isArray(t.rounds) ? t.rounds.length : 0;
             const title = t.name || t.title || `체스 대회 기록 #${records.length - index}`;
 
+            const isCloud = record.cloud || cloudRecordIds.has(String(record.id));
             return `
                 <div class="saved-record">
                     <div class="saved-record-info">
                         <div class="saved-record-name">${escapeHtml(String(title))}</div>
-                        <div class="saved-record-time">🕒 ${formatSavedDate(record.savedAt)}</div>
+                        <div class="saved-record-time">🕒 ${formatSavedDate(record.savedAt)}${isCloud ? " · ☁️ 클라우드" : " · 이 컴퓨터"}</div>
                         <div class="saved-record-meta">👥 ${players}명 · 🔄 ${rounds}라운드</div>
                     </div>
                     <div class="saved-record-actions">
@@ -4202,7 +4331,7 @@ function closeSavedRecords() {
 }
 
 function loadSavedRecord(id) {
-    const records = getSavedTournamentRecords();
+    const records = window.__dresSavedRecords || getSavedTournamentRecords();
     const record = records.find(r => String(r.id) === String(id));
 
     if (!record || !record.tournament) {
@@ -4253,38 +4382,27 @@ function loadSavedRecord(id) {
 }
 
 
-function deleteSavedRecord(id) {
-    const records = getSavedTournamentRecords();
+async function deleteSavedRecord(id) {
+    const records = window.__dresSavedRecords || getSavedTournamentRecords();
     const record = records.find(r => String(r.id) === String(id));
-
-    if (!record) {
-        alert("기록을 찾을 수 없습니다.");
-        return;
+    if (!record) { alert("기록을 찾을 수 없습니다."); return; }
+    const name = record.tournament?.name || record.tournament?.title || "이 대회 기록";
+    if (!confirm(`"${name}" 기록을 삭제할까요?\n\n삭제하면 클라우드 기록 보기 목록에서도 제거됩니다.`)) return;
+    try {
+        if (record.cloud || cloudRecordIds.has(String(record.id))) {
+            await cloudRequest("delete", { id: String(record.id) });
+        } else {
+            const nextRecords = getSavedTournamentRecords().filter(r => String(r.id) !== String(id));
+            localStorage.setItem("swissChessTournament_history", JSON.stringify(nextRecords));
+        }
+        await showSavedRecords();
+    } catch (error) {
+        alert("기록 삭제 실패: " + error.message);
     }
-
-    const name =
-        record.tournament?.name ||
-        record.tournament?.title ||
-        "이 대회 기록";
-
-    if (!confirm(`"${name}" 기록을 삭제할까요?\n\n삭제하면 기록 보기 목록에서 제거됩니다.`)) {
-        return;
-    }
-
-    const nextRecords = records.filter(
-        r => String(r.id) !== String(id)
-    );
-
-    localStorage.setItem(
-        "swissChessTournament_history",
-        JSON.stringify(nextRecords)
-    );
-
-    showSavedRecords();
 }
 
 function downloadSavedRecord(id) {
-    const records = getSavedTournamentRecords();
+    const records = window.__dresSavedRecords || getSavedTournamentRecords();
     const record = records.find(r => String(r.id) === String(id));
 
     if (!record) {
@@ -4347,7 +4465,7 @@ function silentAutoSave() {
 
 
 
-function saveTournament(showMessage) {
+async function saveTournament(showMessage) {
     if (!tournament) return;
 
     try {
@@ -4387,10 +4505,26 @@ function saveTournament(showMessage) {
             tournament
         });
 
+        // Cloud save lets the other computer see the same record.
+        // Local save remains available if the network is temporarily unavailable.
+        let cloudMessage = "";
+        try {
+            const cloudResult = await cloudRequest("save", {
+                tournament_name: finalName,
+                saved_at: savedAt,
+                tournament
+            });
+            cloudRecordIds.add(String(cloudResult.id));
+            cloudMessage = " · ☁️ 클라우드 공유됨";
+        } catch (cloudError) {
+            console.warn("클라우드 저장 실패:", cloudError);
+            cloudMessage = " · ⚠️ 이 컴퓨터에만 저장됨 (클라우드 연결 확인 필요)";
+        }
+
         const status = document.getElementById("saveStatus");
         if (status) {
             status.textContent =
-                `✓ "${finalName}" 저장됨 · ${new Date(savedAt).toLocaleString("ko-KR")}`;
+                `✓ "${finalName}" 저장됨 · ${new Date(savedAt).toLocaleString("ko-KR")}${cloudMessage}`;
             status.style.color = "#16a34a";
         }
 
@@ -4398,7 +4532,8 @@ function saveTournament(showMessage) {
             alert(
                 `💾 저장 완료!\n\n` +
                 `대회명: ${finalName}\n` +
-                `저장 시간: ${new Date(savedAt).toLocaleString("ko-KR")}\n\n` +
+                `저장 시간: ${new Date(savedAt).toLocaleString("ko-KR")}\n` +
+                `${cloudMessage.trim()}\n\n` +
                 `📚 기록 보기에서 확인할 수 있습니다.`
             );
         }
